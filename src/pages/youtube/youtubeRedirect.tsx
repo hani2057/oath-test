@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useEffect } from "react";
 import { redirect } from "react-router";
 
 const OAUTH2_TOKEN_END_POINT = "https://oauth2.googleapis.com/token";
@@ -8,8 +9,16 @@ const STATE = import.meta.env.VITE_STATE;
 const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export function YoutubeRedirect() {
+  const url = new URL(window.location.href);
+
+  useEffect(() => {
+    // url.searchParams에 code가 있으면 토큰 요청
+    if (url.searchParams.has("code")) handleGetTokenFromCode();
+    // 없으면 리다이렉트
+    else redirect("/youtube");
+  }, []);
+
   const handleGetTokenFromCode = async () => {
-    const url = new URL(window.location.href);
     const state = url.searchParams.get("state");
     if (state !== STATE) {
       alert("state 값이 일치하지 않습니다.");
@@ -18,7 +27,6 @@ export function YoutubeRedirect() {
     const code = url.searchParams.get("code");
     if (code) console.log("code 요청 성공");
 
-    console.log(`${REDIRECT_BASE_URL}/youtube`);
     const res = await axios({
       method: "POST",
       url: OAUTH2_TOKEN_END_POINT,
@@ -27,15 +35,15 @@ export function YoutubeRedirect() {
         client_secret: CLIENT_SECRET,
         code,
         grant_type: "authorization_code",
-        redirect_uri: `${REDIRECT_BASE_URL}/youtube`,
+        redirect_uri: `${REDIRECT_BASE_URL}/youtube/redirect`,
       },
     });
     if (res.data.access_token) console.log("access token 요청 성공");
     if (res.data.refresh_token) console.log("refresh token 요청 성공");
     localStorage.setItem("access_token", res.data.access_token);
     localStorage.setItem("refresh_token", res.data.refresh_token);
+    return redirect("/youtube");
   };
-  handleGetTokenFromCode();
 
   return <>리다이렉트</>;
 }
