@@ -69,7 +69,27 @@ export function Youtube() {
       <Link to="/">
         <button style={{ width: "5rem", height: "2rem" }}>홈으로</button>
       </Link>
-      <hr />
+      <div>
+        <p>테스트 조건</p>
+        <p>
+          1. 동영상 업로드는 크레딧이 너무 많이 소모되어 채널명 조회 api 로
+          테스트 구성
+        </p>
+        <p>
+          2. 테스트앱으로는 구글 클라우드 프로젝트당 100건, 유저 1명당
+          25회까지만 리프레시 토큰 발급이 제한되어 있어 발급 한도 초과시 새로
+          프로젝트 생성해야 함.
+        </p>
+        <p>(response에서 ‘invalid_grant’ 응답이 오면 김하늬에게 알려주세요.)</p>
+        <p>
+          3. POC여서 클라이언트로만 구성(서버 없음). DB는 로컬스토리지로
+          대체해서 적용
+        </p>
+        <p>
+          4. 테스트 프로젝트에서는 기 등록된 사용자만 접근 가능하므로 테스트하실
+          구글 계정을 김하늬에게 알려주세요. 계정 등록 이후 테스트 가능합니다.
+        </p>
+      </div>
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>step 1.</p>
         <button onClick={handleOauthLogIn}>구글 로그인</button>
