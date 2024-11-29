@@ -6,6 +6,7 @@ import { Youtube } from "./pages/youtube/youtube.tsx";
 import { Tiktok } from "./pages/tiktok/tiktok.tsx";
 import { Instagram } from "./pages/instagram/instagram.tsx";
 import { YoutubeRedirect } from "./pages/youtube/youtubeRedirect.tsx";
+import { InstagramRedirect } from "./pages/instagram/instagramRedirect.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -17,7 +18,10 @@ createRoot(document.getElementById("root")!).render(
           <Route path="redirect" element={<YoutubeRedirect />} />
         </Route>
         <Route path="tiktok" element={<Tiktok />} />
-        <Route path="instagram" element={<Instagram />} />
+        <Route path="instagram">
+          <Route index element={<Instagram />} />
+          <Route path="redirect" element={<InstagramRedirect />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   </StrictMode>
