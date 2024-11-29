@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import { redirect } from "react-router";
 
 const OAUTH2_TOKEN_END_POINT = "https://oauth2.googleapis.com/token";
-const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
-const CLIENT_SECRET = import.meta.env.VITE_CLIENT_SECRET;
-const STATE = import.meta.env.VITE_STATE;
+const CLIENT_ID = import.meta.env.VITE_YOUTUBE_CLIENT_ID;
+const CLIENT_SECRET = import.meta.env.VITE_YOUTUBE_CLIENT_SECRET;
+const STATE = import.meta.env.VITE_YOUTUBE_STATE;
 const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export function YoutubeRedirect() {
@@ -25,7 +25,7 @@ export function YoutubeRedirect() {
       return redirect("/youtube");
     }
     const code = url.searchParams.get("code");
-    if (code) console.log("code 요청 성공");
+    if (code) console.log("유튜브 code 요청 성공");
 
     const res = await axios({
       method: "POST",
@@ -38,10 +38,10 @@ export function YoutubeRedirect() {
         redirect_uri: `${REDIRECT_BASE_URL}/youtube/redirect`,
       },
     });
-    if (res.data.access_token) console.log("access token 요청 성공");
-    if (res.data.refresh_token) console.log("refresh token 요청 성공");
-    localStorage.setItem("access_token", res.data.access_token);
-    localStorage.setItem("refresh_token", res.data.refresh_token);
+    if (res.data.access_token) console.log("유튜브 access token 요청 성공");
+    if (res.data.refresh_token) console.log("유튜브 refresh token 요청 성공");
+    localStorage.setItem("youtube_access_token", res.data.access_token);
+    localStorage.setItem("youtube_refresh_token", res.data.refresh_token);
     return redirect("/youtube");
   };
 

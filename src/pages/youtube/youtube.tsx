@@ -12,15 +12,15 @@ type TYouTubeChannel = {
 
 export function Youtube() {
   const OAUTH2_LOGIN_END_POINT = "https://accounts.google.com/o/oauth2/v2/auth";
-  const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
+  const CLIENT_ID = import.meta.env.VITE_YOUTUBE_CLIENT_ID;
   const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
   const SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl";
-  const STATE = import.meta.env.VITE_STATE;
+  const STATE = import.meta.env.VITE_YOUTUBE_STATE;
   const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
 
   const [data, setData] = useState<{ items: TYouTubeChannel[] } | null>(null);
   const [accessToken, setAccessToken] = useState(
-    localStorage.getItem("access_token")
+    localStorage.getItem("youtube_access_token")
   );
 
   const handleOauthLogIn = () => {
@@ -51,7 +51,7 @@ export function Youtube() {
         mine: "true",
       },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        Authorization: `Bearer ${localStorage.getItem("youtube_access_token")}`,
       },
     });
     console.log("res", res);
@@ -93,7 +93,7 @@ export function Youtube() {
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>step 1.</p>
         <button onClick={handleOauthLogIn}>구글 로그인</button>
-        {accessToken && <p>access token 발급 완료</p>}
+        {accessToken && <p>유튜브 access token 발급 완료</p>}
       </div>
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>step 2.</p>
