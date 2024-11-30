@@ -1,5 +1,14 @@
+import axios from "axios";
 import { useEffect } from "react";
 import { redirect } from "react-router";
+
+const OAUTH2_SHORT_TOKEN_END_POINT =
+  "https://api.instagram.com/oauth/access_token";
+const OAUTH2_LONG_TOKEN_END_POINT = "https://graph.instagram.com/access_token";
+const CLIENT_ID = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
+const CLIENT_SECRET = import.meta.env.VITE_INSTAGRAM_CLIENT_SECRET;
+const STATE = import.meta.env.VITE_STATE;
+const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export function InstagramRedirect() {
   const url = new URL(window.location.href);
@@ -12,16 +21,49 @@ export function InstagramRedirect() {
   }, []);
 
   const handleGetTokenFromCode = async () => {
+    const state = url.searchParams.get("state");
+    if (state !== STATE) {
+      alert("state 값이 일치하지 않습니다.");
+      return redirect("/instagram");
+    }
     const code = url.searchParams.get("code");
     if (code) console.log("code 요청 성공");
 
-    // TODO: 인스타그램 access token 요청
+    try {
+      const shortAccessTokenRes = await axios({
+        method: "POST",
+        url: OAUTH2_SHORT_TOKEN_END_POINT,
+        data: {
+          client_id: CLIENT_ID,
+          client_secret: CLIENT_SECRET,
+          grant_type: "authorization_code",
+          redirect_uri: `${REDIRECT_BASE_URL}/instagram/redirect`,
+          code: code?.split("#")[0],
+        },
+      });
+      if (shortAccessTokenRes.data[0].access_token)
+        console.log("인스타그램 short lived access token 요청 성공");
 
-    // if (res.data.access_token) console.log("인스타그램 access token 요청 성공");
-    // if (res.data.refresh_token) console.log("인스타그램 refresh token 요청 성공");
-    // localStorage.setItem("instagram_access_token", res.data.access_token);
-    // localStorage.setItem("instagram_refresh_token", res.data.refresh_token);
-    // return redirect("/instagram");
+      const longAccessTokenRes = await axios({
+        method: "GET",
+        url: OAUTH2_LONG_TOKEN_END_POINT,
+        params: {
+          grant_type: "ig_exchange_token",
+          client_secret: CLIENT_SECRET,
+          access_token: shortAccessTokenRes.data[0].access_token,
+        },
+      });
+      if (longAccessTokenRes.data[0].access_token)
+        console.log("인스타그램 long lived access token 요청 성공");
+
+      localStorage.setItem(
+        "instagram_access_token",
+        longAccessTokenRes.data[0].access_token
+      );
+      return redirect("/instagram");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return <>리다이렉트</>;

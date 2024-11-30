@@ -15,7 +15,7 @@ export function Youtube() {
   const CLIENT_ID = import.meta.env.VITE_YOUTUBE_CLIENT_ID;
   const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
   const SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl";
-  const STATE = import.meta.env.VITE_YOUTUBE_STATE;
+  const STATE = import.meta.env.VITE_STATE;
   const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
 
   const [data, setData] = useState<{ items: TYouTubeChannel[] } | null>(null);

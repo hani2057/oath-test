@@ -5,7 +5,7 @@ import { redirect } from "react-router";
 const OAUTH2_TOKEN_END_POINT = "https://oauth2.googleapis.com/token";
 const CLIENT_ID = import.meta.env.VITE_YOUTUBE_CLIENT_ID;
 const CLIENT_SECRET = import.meta.env.VITE_YOUTUBE_CLIENT_SECRET;
-const STATE = import.meta.env.VITE_YOUTUBE_STATE;
+const STATE = import.meta.env.VITE_STATE;
 const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export function YoutubeRedirect() {
