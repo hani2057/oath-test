@@ -1,8 +1,4 @@
 {
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
-  ],
   "rewrites": [
     {
       "source": "/instagram-short",
@@ -11,6 +7,10 @@
     {
       "source": "/instagram-long",
       "destination": "https://graph.instagram.com/access_token"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
