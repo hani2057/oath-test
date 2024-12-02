@@ -2,9 +2,6 @@ import axios from "axios";
 import { useEffect } from "react";
 import { redirect } from "react-router";
 
-const OAUTH2_SHORT_TOKEN_END_POINT =
-  "https://api.instagram.com/oauth/access_token";
-const OAUTH2_LONG_TOKEN_END_POINT = "https://graph.instagram.com/access_token";
 const CLIENT_ID = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
 const CLIENT_SECRET = import.meta.env.VITE_INSTAGRAM_CLIENT_SECRET;
 const STATE = import.meta.env.VITE_STATE;
@@ -32,7 +29,7 @@ export function InstagramRedirect() {
     try {
       const shortAccessTokenRes = await axios({
         method: "POST",
-        url: OAUTH2_SHORT_TOKEN_END_POINT,
+        url: "/instagram-short",
         data: {
           client_id: CLIENT_ID,
           client_secret: CLIENT_SECRET,
@@ -46,7 +43,7 @@ export function InstagramRedirect() {
 
       const longAccessTokenRes = await axios({
         method: "GET",
-        url: OAUTH2_LONG_TOKEN_END_POINT,
+        url: "/instagram-long",
         params: {
           grant_type: "ig_exchange_token",
           client_secret: CLIENT_SECRET,
