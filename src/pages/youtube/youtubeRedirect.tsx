@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect } from "react";
-import { redirect } from "react-router";
+import { redirect, useNavigate } from "react-router";
 
 const OAUTH2_TOKEN_END_POINT = "https://oauth2.googleapis.com/token";
 const CLIENT_ID = import.meta.env.VITE_YOUTUBE_CLIENT_ID;
@@ -9,13 +9,15 @@ const STATE = import.meta.env.VITE_STATE;
 const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export function YoutubeRedirect() {
+  const navigate = useNavigate();
+
   const url = new URL(window.location.href);
 
   useEffect(() => {
     // url.searchParams에 code가 있으면 토큰 요청
     if (url.searchParams.has("code")) handleGetTokenFromCode();
     // 없으면 리다이렉트
-    else redirect("/youtube");
+    else navigate("/youtube", { replace: true });
   }, []);
 
   const handleGetTokenFromCode = async () => {
@@ -42,7 +44,7 @@ export function YoutubeRedirect() {
     if (res.data.refresh_token) console.log("유튜브 refresh token 요청 성공");
     localStorage.setItem("youtube_access_token", res.data.access_token);
     localStorage.setItem("youtube_refresh_token", res.data.refresh_token);
-    return redirect("/youtube");
+    navigate("/youtube", { replace: true });
   };
 
   return <>리다이렉트</>;
