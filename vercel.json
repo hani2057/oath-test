@@ -2,5 +2,15 @@
   "routes": [
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
+  ],
+  "rewrites": [
+    {
+      "source": "/instagram-short",
+      "destination": "https://api.instagram.com/oauth/access_token"
+    },
+    {
+      "source": "/instagram-long",
+      "destination": "https://graph.instagram.com/access_token"
+    }
   ]
 }
