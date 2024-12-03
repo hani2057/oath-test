@@ -69,9 +69,25 @@ export function Youtube() {
     const file = document.getElementById("youtube-video") as HTMLInputElement;
 
     const formData = new FormData();
-    formData.append("snippet", JSON.stringify({ title: "Test video" }));
-    formData.append("status", JSON.stringify({ privacyStatus: "private" }));
-    formData.append("file", file.files![0]);
+    formData.append(
+      "metadata",
+      new Blob(
+        [
+          JSON.stringify({
+            snippet: {
+              categoryId: "22",
+              description: "Description of uploaded video.",
+              title: "Test video upload.",
+            },
+            status: {
+              privacyStatus: "private",
+            },
+          }),
+        ],
+        { type: "application/json;charset=UTF-8" }
+      )
+    );
+    formData.append("file", file.files![0], "sample.mp4");
 
     try {
       const res = await axios({
