@@ -58,7 +58,7 @@ export function Instagram() {
     try {
       const containerInitRes = await axios({
         method: "post",
-        url: "/instagram-media-init",
+        url: `/instagram-media/${userData?.id}/media`,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -71,7 +71,7 @@ export function Instagram() {
 
       const containerPublishRes = await axios({
         method: "post",
-        url: "/instagram-media-publish",
+        url: `/instagram-media/${userData?.id}/media_publish`,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

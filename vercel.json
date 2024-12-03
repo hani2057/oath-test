@@ -1,1 +1,20 @@
-{}
+{
+  "rewrites": [
+    {
+      "source": "/instagram-short",
+      "destination": "https://api.instagram.com/oauth/access_token"
+    },
+    {
+      "source": "/instagram-long",
+      "destination": "https://graph.instagram.com/access_token"
+    },
+    {
+      "source": "/instagram-media/(.*)",
+      "destination": "https://graph.instagram.com/v21.0"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
