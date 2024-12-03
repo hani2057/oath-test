@@ -1,7 +1,7 @@
 import axios from "axios";
 import qs from "qs";
 import { useEffect } from "react";
-import { redirect } from "react-router";
+import { useNavigate } from "react-router";
 
 const CLIENT_ID = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
 const CLIENT_SECRET = import.meta.env.VITE_INSTAGRAM_CLIENT_SECRET;
@@ -9,20 +9,22 @@ const STATE = import.meta.env.VITE_STATE;
 const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export function InstagramRedirect() {
+  const navigate = useNavigate();
+
   const url = new URL(window.location.href.split("#")[0]);
 
   useEffect(() => {
     // url.searchParams에 code가 있으면 토큰 요청
     if (url.searchParams.has("code")) handleGetTokenFromCode();
     // 없으면 리다이렉트
-    else redirect("/instagram");
+    else navigate("/instagram");
   }, []);
 
   const handleGetTokenFromCode = async () => {
     const state = url.searchParams.get("state");
     if (state !== STATE) {
       alert("state 값이 일치하지 않습니다.");
-      return redirect("/instagram");
+      navigate("/instagram");
     }
     const code = url.searchParams.get("code");
     if (code) console.log("code 요청 성공");
@@ -59,7 +61,7 @@ export function InstagramRedirect() {
         "instagram_access_token",
         longAccessTokenRes.data.access_token
       );
-      return redirect("/instagram");
+      navigate("/instagram");
     } catch (err) {
       console.error(err);
     }
