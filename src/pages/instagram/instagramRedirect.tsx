@@ -1,4 +1,5 @@
 import axios from "axios";
+import qs from "qs";
 import { useEffect } from "react";
 import { redirect } from "react-router";
 
@@ -8,7 +9,7 @@ const STATE = import.meta.env.VITE_STATE;
 const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 export function InstagramRedirect() {
-  const url = new URL(window.location.href);
+  const url = new URL(window.location.href.split("#")[0]);
 
   useEffect(() => {
     // url.searchParams에 code가 있으면 토큰 요청
@@ -30,13 +31,14 @@ export function InstagramRedirect() {
       const shortAccessTokenRes = await axios({
         method: "POST",
         url: "/instagram-short",
-        data: {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        data: qs.stringify({
           client_id: CLIENT_ID,
           client_secret: CLIENT_SECRET,
           grant_type: "authorization_code",
           redirect_uri: `${REDIRECT_BASE_URL}/instagram/redirect`,
-          code: code?.split("#")[0],
-        },
+          code,
+        }),
       });
       if (shortAccessTokenRes.data[0].access_token)
         console.log("인스타그램 short lived access token 요청 성공");
