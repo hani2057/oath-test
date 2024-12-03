@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router";
+import qs from "qs";
 
 const OAUTH2_LOGIN_END_POINT = "https://www.instagram.com/oauth/authorize";
 const CLIENT_ID = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
@@ -60,12 +61,11 @@ export function Instagram() {
         url: "/instagram-media-init",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
         },
-        data: {
-          media_type: "VIDEO",
+        data: qs.stringify({
+          media_type: "REELS",
           video_url: VIDEO_URL,
-        },
+        }),
       });
       const containerId = containerInitRes.data.id;
 
@@ -74,11 +74,10 @@ export function Instagram() {
         url: "/instagram-media-publish",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
         },
-        data: {
+        data: qs.stringify({
           creation_id: containerId,
-        },
+        }),
       });
       if (containerPublishRes.data.id) setVideoUploadCompleted(true);
     } catch (err) {
