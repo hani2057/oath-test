@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router";
+import qs from "qs";
 
 type TYouTubeChannel = {
   id: string;
@@ -10,17 +11,19 @@ type TYouTubeChannel = {
   };
 };
 
-export function Youtube() {
-  const OAUTH2_LOGIN_END_POINT = "https://accounts.google.com/o/oauth2/v2/auth";
-  const CLIENT_ID = import.meta.env.VITE_YOUTUBE_CLIENT_ID;
-  const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
-  const SCOPE = [
-    "https://www.googleapis.com/auth/youtube.force-ssl",
-    "https://www.googleapis.com/auth/youtube.upload",
-  ].join(",");
-  const STATE = import.meta.env.VITE_STATE;
-  const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
+const OAUTH2_LOGIN_END_POINT = "https://accounts.google.com/o/oauth2/v2/auth";
+const CLIENT_ID = import.meta.env.VITE_YOUTUBE_CLIENT_ID;
+const CLIENT_SECRET = import.meta.env.VITE_YOUTUBE_CLIENT_SECRET;
+const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+const SCOPE = [
+  "https://www.googleapis.com/auth/youtube.force-ssl",
+  "https://www.googleapis.com/auth/youtube.upload",
+].join(" ");
+const STATE = import.meta.env.VITE_STATE;
+const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
+const OAUTH2_REFRESH_END_POINT = "https://oauth2.googleapis.com/token";
 
+export function Youtube() {
   const [data, setData] = useState<{ items: TYouTubeChannel[] } | null>(null);
   const [accessToken, setAccessToken] = useState(
     localStorage.getItem("youtube_access_token")
@@ -59,6 +62,28 @@ export function Youtube() {
     });
     console.log("res", res);
     setData(res.data);
+  };
+
+  const handleClickRefreshToken = async () => {
+    try {
+      const res = await axios({
+        method: "post",
+        url: OAUTH2_REFRESH_END_POINT,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        data: qs.stringify({
+          client_id: CLIENT_ID,
+          client_secret: CLIENT_SECRET,
+          refresh_token: localStorage.getItem("youtube_refresh_token"),
+          grant_type: "refresh_token",
+        }),
+      });
+      if (res.data.access_token) console.log("유튜브 access token 요청 성공");
+      localStorage.setItem("youtube_access_token", res.data.access_token);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleClickReset = () => {
@@ -102,6 +127,10 @@ export function Youtube() {
         <p>step 2.</p>
         <button onClick={handleGetYoutubeChannels}>유튜브 api 호출</button>
         {data && <p>유튜브 채널 정보(채널명): {data.items[0].snippet.title}</p>}
+      </div>
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <p>refresh</p>
+        <button onClick={handleClickRefreshToken}>토큰 재발급</button>
       </div>
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>reset</p>
