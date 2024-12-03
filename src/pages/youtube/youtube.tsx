@@ -24,10 +24,11 @@ const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3";
 const OAUTH2_REFRESH_END_POINT = "https://oauth2.googleapis.com/token";
 
 export function Youtube() {
-  const [data, setData] = useState<{ items: TYouTubeChannel[] } | null>(null);
   const [accessToken, setAccessToken] = useState(
     localStorage.getItem("youtube_access_token")
   );
+  const [data, setData] = useState<{ items: TYouTubeChannel[] } | null>(null);
+  const [videoId, setVideoId] = useState<string | null>(null);
 
   const handleOauthLogIn = () => {
     localStorage.clear();
@@ -60,8 +61,38 @@ export function Youtube() {
         Authorization: `Bearer ${localStorage.getItem("youtube_access_token")}`,
       },
     });
-    console.log("res", res);
+    console.log("채널 정보 조회 res", res);
     setData(res.data);
+  };
+
+  const handleUploadVideo = async () => {
+    const file = document.getElementById("youtube-video") as HTMLInputElement;
+
+    const formData = new FormData();
+    formData.append("snippet", JSON.stringify({ title: "Test video" }));
+    formData.append("status", JSON.stringify({ privacyStatus: "private" }));
+    formData.append("file", file.files![0]);
+
+    try {
+      const res = await axios({
+        method: "post",
+        url: `${YOUTUBE_API_BASE_URL}/videos`,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(
+            "youtube_access_token"
+          )}`,
+          "Content-Type": "multipart/form-data",
+        },
+        params: {
+          part: "snippet,status",
+        },
+        data: formData,
+      });
+      console.log("동영상 업로드 res", res);
+      setVideoId(res.data.id);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleClickRefreshToken = async () => {
@@ -90,6 +121,7 @@ export function Youtube() {
     localStorage.clear();
     setData(null);
     setAccessToken(null);
+    setVideoId(null);
   };
 
   return (
@@ -125,8 +157,18 @@ export function Youtube() {
       </div>
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>step 2.</p>
-        <button onClick={handleGetYoutubeChannels}>유튜브 api 호출</button>
+        <button onClick={handleGetYoutubeChannels}>
+          유튜브 채널 정보 조회 api 호출
+        </button>
         {data && <p>유튜브 채널 정보(채널명): {data.items[0].snippet.title}</p>}
+      </div>
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <p>step 3.</p>
+        <div>
+          <p>동영상 업로드 api 호출</p>
+          <input type="file" id="youtube-video" onChange={handleUploadVideo} />
+        </div>
+        {videoId && <p>동영상 업로드 성공 videoId: {videoId}</p>}
       </div>
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>refresh</p>
