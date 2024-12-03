@@ -40,7 +40,7 @@ export function InstagramRedirect() {
           code,
         }),
       });
-      if (shortAccessTokenRes.data[0].access_token)
+      if (shortAccessTokenRes.data.access_token)
         console.log("인스타그램 short lived access token 요청 성공");
 
       const longAccessTokenRes = await axios({
@@ -49,15 +49,15 @@ export function InstagramRedirect() {
         params: {
           grant_type: "ig_exchange_token",
           client_secret: CLIENT_SECRET,
-          access_token: shortAccessTokenRes.data[0].access_token,
+          access_token: shortAccessTokenRes.data.access_token,
         },
       });
-      if (longAccessTokenRes.data[0].access_token)
+      if (longAccessTokenRes.data.access_token)
         console.log("인스타그램 long lived access token 요청 성공");
 
       localStorage.setItem(
         "instagram_access_token",
-        longAccessTokenRes.data[0].access_token
+        longAccessTokenRes.data.access_token
       );
       return redirect("/instagram");
     } catch (err) {
