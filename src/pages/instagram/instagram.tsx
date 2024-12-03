@@ -7,14 +7,18 @@ const CLIENT_ID = import.meta.env.VITE_INSTAGRAM_CLIENT_ID;
 const REDIRECT_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 const STATE = import.meta.env.VITE_STATE;
 const INSTAGRAM_API_BASE_URL = "https://graph.instagram.com/v21.0";
+const VIDEO_URL =
+  "https://s3.ap-northeast-2.amazonaws.com/dev.honeydevelop.com/assets/test.mp4";
 
 export function Instagram() {
   const [accessToken, setAccessToken] = useState(
     localStorage.getItem("instagram_access_token")
   );
-  const [data, setData] = useState<{ id: string; username: string } | null>(
-    null
-  );
+  const [userData, setUserData] = useState<{
+    id: string;
+    username: string;
+  } | null>(null);
+  const [videoUploadCompleted, setVideoUploadCompleted] = useState(false);
 
   const handleOauthLogIn = () => {
     const paramsObj = {
@@ -43,7 +47,40 @@ export function Instagram() {
           access_token: accessToken,
         },
       });
-      setData(res.data);
+      setUserData(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUploadVideo = async () => {
+    try {
+      const containerInitRes = await axios({
+        method: "post",
+        url: `${INSTAGRAM_API_BASE_URL}/${userData?.id}/media`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        data: {
+          media_type: "VIDEO",
+          video_url: VIDEO_URL,
+        },
+      });
+      const containerId = containerInitRes.data.id;
+
+      const containerPublishRes = await axios({
+        method: "post",
+        url: `${INSTAGRAM_API_BASE_URL}/${userData?.id}/media_publish`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        data: {
+          creation_id: containerId,
+        },
+      });
+      if (containerPublishRes.data.id) setVideoUploadCompleted(true);
     } catch (err) {
       console.error(err);
     }
@@ -52,6 +89,8 @@ export function Instagram() {
   const handleClickReset = () => {
     localStorage.clear();
     setAccessToken(null);
+    setUserData(null);
+    setVideoUploadCompleted(false);
   };
 
   return (
@@ -78,8 +117,17 @@ export function Instagram() {
       </div>
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>step 2.</p>
-        <button onClick={handleGetUserName}>인스타그램 api 호출</button>
-        {data && <p>인스타그램 계정 이름: {data.username}</p>}
+        <button onClick={handleGetUserName}>
+          인스타그램 유저 정보 조회 api 호출
+        </button>
+        {userData && <p>인스타그램 계정 이름: {userData.username}</p>}
+      </div>
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <p>step 3.</p>
+        <button onClick={handleUploadVideo}>
+          인스타그램 동영상 업로드 api 호출
+        </button>
+        {videoUploadCompleted && <p>동영상 업로드 성공</p>}
       </div>
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>reset</p>
