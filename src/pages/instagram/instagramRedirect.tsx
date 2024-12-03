@@ -17,14 +17,14 @@ export function InstagramRedirect() {
     // url.searchParams에 code가 있으면 토큰 요청
     if (url.searchParams.has("code")) handleGetTokenFromCode();
     // 없으면 리다이렉트
-    else navigate("/instagram");
+    else navigate("/instagram", { replace: true });
   }, []);
 
   const handleGetTokenFromCode = async () => {
     const state = url.searchParams.get("state");
     if (state !== STATE) {
       alert("state 값이 일치하지 않습니다.");
-      navigate("/instagram");
+      navigate("/instagram", { replace: true });
     }
     const code = url.searchParams.get("code");
     if (code) console.log("code 요청 성공");
@@ -66,7 +66,7 @@ export function InstagramRedirect() {
         "instagram_access_token",
         longAccessTokenRes.data.access_token
       );
-      navigate("/instagram");
+      navigate("/instagram", { replace: true });
     } catch (err) {
       console.error(err);
     }

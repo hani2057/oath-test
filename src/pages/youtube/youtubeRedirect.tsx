@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect } from "react";
-import { redirect, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 const OAUTH2_TOKEN_END_POINT = "https://oauth2.googleapis.com/token";
 const CLIENT_ID = import.meta.env.VITE_YOUTUBE_CLIENT_ID;
@@ -24,7 +24,7 @@ export function YoutubeRedirect() {
     const state = url.searchParams.get("state");
     if (state !== STATE) {
       alert("state 값이 일치하지 않습니다.");
-      return redirect("/youtube");
+      navigate("/youtube", { replace: true });
     }
     const code = url.searchParams.get("code");
     if (code) console.log("유튜브 code 요청 성공");
