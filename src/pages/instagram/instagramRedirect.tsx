@@ -45,6 +45,11 @@ export function InstagramRedirect() {
       if (shortAccessTokenRes.data.access_token)
         console.log("인스타그램 short lived access token 요청 성공");
 
+      localStorage.setItem(
+        "instagram_user_id",
+        shortAccessTokenRes.data.user_id
+      );
+
       const longAccessTokenRes = await axios({
         method: "GET",
         url: "/instagram-long",
