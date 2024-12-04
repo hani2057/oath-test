@@ -13,6 +13,10 @@
       "destination": "https://graph.instagram.com/v21.0"
     },
     {
+      "source": "/youtube-upload/(.*)",
+      "destination": "https://www.googleapis.com/upload/youtube/v3/videos"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

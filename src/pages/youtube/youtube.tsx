@@ -66,7 +66,14 @@ export function Youtube() {
   };
 
   const handleUploadVideo = async () => {
-    const file = document.getElementById("youtube-video") as HTMLInputElement;
+    const fileInput = document.getElementById(
+      "youtube-video"
+    ) as HTMLInputElement;
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+      console.error("No file selected");
+      return;
+    }
+    const file = fileInput.files[0];
 
     const formData = new FormData();
     formData.append(
@@ -87,27 +94,68 @@ export function Youtube() {
         { type: "application/json;charset=UTF-8" }
       )
     );
-    formData.append("file", file.files![0], "sample.mp4");
+    formData.append("file", file, file.name);
 
     try {
-      const res = await axios({
+      const sessionRes = await axios({
         method: "post",
-        url: `${YOUTUBE_API_BASE_URL}/videos`,
+        url: "/youtube-upload",
+        params: {
+          uploadType: "resumable",
+          part: "snippet,status",
+        },
         headers: {
           Authorization: `Bearer ${localStorage.getItem(
             "youtube_access_token"
           )}`,
-          "Content-Type": "multipart/form-data",
-        },
-        params: {
-          part: "snippet,status",
+          "Content-Type": "application/json; charset=UTF-8",
+          "Content-Length": file.size,
+          "x-upload-content-length": file.size,
+          "x-upload-content-type": "video/mp4",
         },
         data: formData,
       });
-      console.log("동영상 업로드 res", res);
-      setVideoId(res.data.id);
+      console.log("동영상 업로드 세션 res", sessionRes);
+      const location = sessionRes.headers.location;
+
+      const uploadRes = await axios({
+        method: "put",
+        url: location,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(
+            "youtube_access_token"
+          )}`,
+          "Content-Length": file.size,
+          "Content-Type": "video/mp4",
+        },
+        data: file,
+      });
+      console.log("동영상 업로드 res", uploadRes);
+      setVideoId(uploadRes.data.id);
+
+      const uploadStatusCheckRes = await axios({
+        method: "put",
+        url: location,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(
+            "youtube_access_token"
+          )}`,
+          "Content-Length": "0",
+          "content-range": `bytes */${file.size}`,
+        },
+      });
+      console.log("동영상 업로드 상태 체크 res", uploadStatusCheckRes);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleClearFileInput = () => {
+    const fileInput = document.getElementById(
+      "youtube-video"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
     }
   };
 
@@ -180,9 +228,16 @@ export function Youtube() {
       </div>
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>step 3.</p>
-        <div>
-          <p>동영상 업로드 api 호출</p>
-          <input type="file" id="youtube-video" onChange={handleUploadVideo} />
+        <p>동영상 업로드 api 호출</p>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+        >
+          <input type="file" id="youtube-video" />
+          <div>
+            <button onClick={handleUploadVideo}>동영상 업로드</button>
+            <button onClick={handleClearFileInput}>파일 초기화</button>
+            <button onClick={() => setVideoId(null)}>다시 하기</button>
+          </div>
         </div>
         {videoId && <p>동영상 업로드 성공 videoId: {videoId}</p>}
       </div>
@@ -192,7 +247,7 @@ export function Youtube() {
       </div>
       <div style={{ display: "flex", gap: "1rem" }}>
         <p>reset</p>
-        <button onClick={handleClickReset}>다시 하기</button>
+        <button onClick={handleClickReset}>전체 리셋</button>
       </div>
     </div>
   );
